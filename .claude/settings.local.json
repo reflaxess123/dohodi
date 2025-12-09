@@ -1,0 +1,149 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr:*)",
+      "Bash(ccusage --help)",
+      "Bash(ccusage daily:*)",
+      "Bash(ccusage monthly:*)",
+      "Bash(ccusage session:*)",
+      "Bash(ccusage blocks:*)",
+      "Bash(nvm list:*)",
+      "Bash(npx @zilliz/claude-context-mcp@latest:*)",
+      "Bash(start-claude-context.bat)",
+      "Bash(./start-claude-context.bat)",
+      "Bash(claude mcp:*)",
+      "Bash(claude --version)",
+      "Bash(exit)",
+      "Bash(claude /doctor)",
+      "Bash(where claude)",
+      "Bash(dir:*)",
+      "mcp__chrome-mcp-server__get_windows_and_tabs",
+      "Bash(claude /config)",
+      "WebFetch(domain:github.com)",
+      "Bash(mkdir:*)",
+      "Bash(copy commit.md backup-useful )",
+      "Bash(copy implement.md backup-useful )",
+      "Bash(copy review.md backup-useful )",
+      "Bash(copy test.md backup-useful )",
+      "Bash(copy security-scan.md backup-useful )",
+      "Bash(copy fix-todos.md backup-useful )",
+      "Bash(copy contributing.md backup-useful )",
+      "Bash(copy session-start.md backup-useful )",
+      "Bash(copy session-end.md backup-useful)",
+      "mcp__chrome-mcp-server__chrome_console",
+      "mcp__chrome-mcp-server__chrome_inject_script",
+      "mcp__chrome-mcp-server__chrome_navigate",
+      "Bash(poetry run ruff:*)",
+      "Bash(npm run api:generate:*)",
+      "mcp__postgres__query",
+      "Bash(python:*)",
+      "Bash(grep:*)",
+      "Bash(awk:*)",
+      "WebFetch(domain:observablehq.com)",
+      "Bash(npm install:*)",
+      "mcp__chrome-mcp-server__chrome_screenshot",
+      "mcp__chrome-mcp-server__chrome_get_web_content",
+      "mcp__chrome-mcp-server__chrome_network_request",
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:localhost)",
+      "WebSearch",
+      "Bash",
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Grep",
+      "Glob",
+      "LS",
+      "Task",
+      "WebFetch",
+      "WebSearch",
+      "mcp__filesystem",
+      "mcp__chrome-mcp-server__chrome_network_debugger_start",
+      "mcp__chrome-mcp-server__chrome_network_capture_start",
+      "mcp__chrome-mcp-server__chrome_network_capture_stop",
+      "mcp__chrome-mcp-server__chrome_get_interactive_elements",
+      "mcp__chrome-mcp-server__chrome_click_element",
+      "mcp__chrome-mcp-server__chrome_network_debugger_stop",
+      "mcp__chrome-mcp-server__chrome_fill_or_select",
+      "mcp__chrome-mcp-server__chrome_keyboard",
+      "mcp__github__get_file_contents",
+      "mcp__github__search_repositories",
+      "mcp__git__git_log",
+      "mcp__git__git_set_working_dir",
+      "mcp__ide__getDiagnostics",
+      "mcp__chrome-mcp-server__chrome_close_tabs",
+      "mcp__git__git_commit",
+      "mcp__github__search_code",
+      "Skill(fastapi-backend-guidelines)",
+      "Skill(react-frontend-guidelines)",
+      "Skill(skill-developer)",
+      "Skill(oauth-integration)",
+      "Skill(database-migrations)",
+      "Skill(api-client-generation)",
+      "SlashCommand(/verify:*)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(sudo rm:*)",
+      "Bash(trash:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git clean:*)",
+      "Bash(git checkout -f:*)",
+      "Bash(git tag:*)",
+      "Bash(git apply:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git revert:*)",
+      "Bash(git merge:*)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "postgres",
+    "git",
+    "chrome-mcp-server"
+  ],
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/skill-activation-prompt.js"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/pre-tool-use-guardrails.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/post-tool-use-tracker.js"
+          }
+        ]
+      }
+    ]
+  },
+  "outputStyle": "default"
+}

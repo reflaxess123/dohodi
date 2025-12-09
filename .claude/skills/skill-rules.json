@@ -1,0 +1,680 @@
+{
+    "version": "1.0",
+    "description": "Skill activation triggers for Nareshka project. Controls when skills automatically suggest or block actions.",
+    "skills": {
+        "database-verification": {
+            "type": "guardrail",
+            "enforcement": "block",
+            "priority": "critical",
+            "description": "CRITICAL: Verifies database changes, prevents data loss, validates migrations",
+            "promptTriggers": {
+                "keywords": [
+                    "DROP TABLE",
+                    "DROP DATABASE",
+                    "TRUNCATE",
+                    "DELETE FROM",
+                    "удалить таблицу",
+                    "удалить базу",
+                    "очистить данные",
+                    "data migration",
+                    "данные миграция"
+                ],
+                "intentPatterns": [
+                    "(drop|delete|truncate|remove).*?(table|database|column|data)",
+                    "(удалить|очистить|убрать).*?(таблиц|базу|колонк|данны)",
+                    "миграция.*?(данн|существующ)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/alembic/versions/**/*.py"
+                ],
+                "contentPatterns": [
+                    "op\\.drop_table",
+                    "op\\.drop_column",
+                    "execute.*DELETE",
+                    "execute.*DROP",
+                    "execute.*TRUNCATE"
+                ]
+            }
+        },
+        "security-guardrail": {
+            "type": "guardrail",
+            "enforcement": "block",
+            "priority": "critical",
+            "description": "CRITICAL: Security validation - credentials, injection, XSS prevention",
+            "promptTriggers": {
+                "keywords": [
+                    "hardcode password",
+                    "hardcode secret",
+                    "hardcode token",
+                    "SQL injection",
+                    "XSS",
+                    "CSRF",
+                    "bypass auth",
+                    "disable security",
+                    "skip validation"
+                ],
+                "intentPatterns": [
+                    "(hardcode|embed|store).*?(password|secret|token|key|credential)",
+                    "(disable|skip|bypass).*?(auth|security|validation)",
+                    "(inject|injection).*?(sql|xss|command)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/*.env*",
+                    "**/secrets/**",
+                    "**/credentials/**"
+                ],
+                "contentPatterns": [
+                    "password\\s*=\\s*[\"'][^\"']+[\"']",
+                    "secret\\s*=\\s*[\"'][^\"']+[\"']",
+                    "api_key\\s*=\\s*[\"'][^\"']+[\"']"
+                ]
+            }
+        },
+        "fsd-architecture-guard": {
+            "type": "guardrail",
+            "enforcement": "warn",
+            "priority": "high",
+            "description": "FSD Architecture rules - layer isolation, import direction",
+            "promptTriggers": {
+                "keywords": [
+                    "FSD",
+                    "Feature-Sliced Design",
+                    "архитектура фронтенда",
+                    "layer violation",
+                    "нарушение слоёв",
+                    "импорт вверх"
+                ],
+                "intentPatterns": [
+                    "(import|импорт).*?(from|из).*?(widgets|features|entities).*?(pages|widgets|features)",
+                    "(нарушен|violation).*?(FSD|layer|слой)",
+                    "(рефактор|refactor).*?(FSD|architecture|архитектур)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/src/pages/**/*.tsx",
+                    "front/src/widgets/**/*.tsx",
+                    "front/src/features/**/*.tsx",
+                    "front/src/entities/**/*.tsx",
+                    "front/src/shared/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "from\\s+['\"]widgets/",
+                    "from\\s+['\"]features/",
+                    "from\\s+['\"]pages/"
+                ]
+            }
+        },
+        "skill-developer": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Meta-skill for creating and managing Claude Code skills",
+            "promptTriggers": {
+                "keywords": [
+                    "skill system",
+                    "create skill",
+                    "add skill",
+                    "skill triggers",
+                    "skill rules",
+                    "hook system",
+                    "skill development",
+                    "skill-rules.json"
+                ],
+                "intentPatterns": [
+                    "(how do|how does|explain).*?skill",
+                    "(create|add|modify|build).*?skill",
+                    "skill.*?(work|trigger|activate|system)"
+                ]
+            }
+        },
+        "fastapi-backend-guidelines": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Backend development patterns for FastAPI/Python/SQLAlchemy",
+            "promptTriggers": {
+                "keywords": [
+                    "backend",
+                    "бэкенд",
+                    "backend development",
+                    "FastAPI",
+                    "API",
+                    "endpoint",
+                    "эндпоинт",
+                    "роутер",
+                    "router",
+                    "сервис",
+                    "service",
+                    "репозиторий",
+                    "repository",
+                    "SQLAlchemy",
+                    "Pydantic",
+                    "алембик",
+                    "alembic",
+                    "миграция",
+                    "migration",
+                    "фича",
+                    "feature",
+                    "dependency injection",
+                    "DI контейнер",
+                    "модель",
+                    "model"
+                ],
+                "intentPatterns": [
+                    "(создать|создай|добавить|добавь|имплементировать|реализовать).*?(роут|эндпоинт|API|роутер|endpoint|route)",
+                    "(создать|создай|добавить|добавь).*?(сервис|репозиторий|service|repository)",
+                    "(как|how to).*?(backend|FastAPI|API)",
+                    "(фикс|исправить|отладить|debug).*?(backend|API|ошибк)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/app/features/**/*.py",
+                    "back/app/shared/**/*.py",
+                    "back/app/core/**/*.py"
+                ],
+                "pathExclusions": [
+                    "**/*test*.py",
+                    "**/__pycache__/**",
+                    "**/alembic/**"
+                ],
+                "contentPatterns": [
+                    "@router\\.",
+                    "APIRouter",
+                    "FastAPI",
+                    "async def.*request",
+                    "class.*Service",
+                    "class.*Repository"
+                ]
+            }
+        },
+        "react-frontend-guidelines": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "React/TypeScript/Redux/React Query best practices for FSD architecture",
+            "promptTriggers": {
+                "keywords": [
+                    "компонент",
+                    "component",
+                    "react",
+                    "UI",
+                    "интерфейс",
+                    "страница",
+                    "page",
+                    "виджет",
+                    "widget",
+                    "фича",
+                    "feature",
+                    "Redux",
+                    "React Query",
+                    "хук",
+                    "hook",
+                    "useState",
+                    "useEffect",
+                    "SCSS",
+                    "стили",
+                    "модуль"
+                ],
+                "intentPatterns": [
+                    "(создать|создай|добавить|добавь|сделать).*?(компонент|страниц|виджет|фич|UI)",
+                    "(как|how to).*?(компонент|react|хук|hook)",
+                    "(стилизовать|стиль|дизайн).*?(компонент|UI)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/src/pages/**/*.tsx",
+                    "front/src/widgets/**/*.tsx",
+                    "front/src/features/**/*.tsx",
+                    "front/src/entities/**/*.tsx",
+                    "front/src/shared/components/**/*.tsx"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.test.ts",
+                    "**/*.spec.tsx"
+                ],
+                "contentPatterns": [
+                    "import.*React",
+                    "useState",
+                    "useEffect",
+                    "export.*function",
+                    "export.*const.*FC"
+                ]
+            }
+        },
+        "interview-ml-processing": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "ML pipeline for interview categorization with BERTopic and GPT",
+            "promptTriggers": {
+                "keywords": [
+                    "BERTopic",
+                    "ML",
+                    "кластеризация",
+                    "clustering",
+                    "интервью",
+                    "interview",
+                    "категоризация",
+                    "categorization",
+                    "GPT",
+                    "постобработка",
+                    "embeddings",
+                    "HDBSCAN"
+                ],
+                "intentPatterns": [
+                    "(анализ|обработка|категоризация).*?(интервью|вопрос|interview)",
+                    "(ML|машинное обучение|кластеризация)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "sobes-data/analysis/**/*.py",
+                    "back/*bertopic*.py",
+                    "back/*cluster*.py"
+                ],
+                "contentPatterns": [
+                    "BERTopic",
+                    "HDBSCAN",
+                    "SentenceTransformer",
+                    "import.*openai"
+                ]
+            }
+        },
+        "code-execution-docker": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Docker code execution with security and validation",
+            "promptTriggers": {
+                "keywords": [
+                    "code execution",
+                    "выполнение кода",
+                    "Docker",
+                    "контейнер",
+                    "изоляция",
+                    "validation",
+                    "валидация кода",
+                    "безопасность",
+                    "security"
+                ],
+                "intentPatterns": [
+                    "(выполнить|запустить|execute).*?код",
+                    "(Docker|контейнер).*?(execution|выполнение)",
+                    "(безопасность|security|validation).*?код"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/app/features/code_editor/**/*.py"
+                ],
+                "contentPatterns": [
+                    "docker\\.from_env",
+                    "container\\.run",
+                    "DockerClient"
+                ]
+            }
+        },
+        "oauth-integration": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "OAuth 2.0 authentication with Google and Telegram",
+            "promptTriggers": {
+                "keywords": [
+                    "OAuth",
+                    "Google Login",
+                    "Telegram Login",
+                    "social auth",
+                    "аутентификация",
+                    "привязка аккаунта",
+                    "account linking",
+                    "Google OAuth",
+                    "Telegram OAuth",
+                    "авторизация",
+                    "authorization"
+                ],
+                "intentPatterns": [
+                    "(добавить|добавь|реализовать|реализуй).*?(OAuth|Google|Telegram|login)",
+                    "(связать|привязать|link).*?(аккаунт|account|provider)",
+                    "(отвязать|unlink).*?(OAuth|provider)",
+                    "OAuth.*?(flow|настройка|setup|configuration)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/app/features/auth/**/*.py",
+                    "front/src/features/LoginForm/**/*.tsx",
+                    "front/src/features/AccountManagement/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "OAuthAccount",
+                    "oauth_service",
+                    "GoogleOAuthButton",
+                    "TelegramLoginButton",
+                    "Authlib"
+                ]
+            }
+        },
+        "database-migrations": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Alembic database migrations best practices",
+            "promptTriggers": {
+                "keywords": [
+                    "migration",
+                    "миграция",
+                    "alembic",
+                    "алембик",
+                    "schema",
+                    "таблица",
+                    "table",
+                    "column",
+                    "колонка",
+                    "database",
+                    "база данных",
+                    "db",
+                    "DDL"
+                ],
+                "intentPatterns": [
+                    "(создать|добавить|удалить|изменить|modify).*?(миграцию|migration|table|column)",
+                    "alembic.*(upgrade|downgrade|revision)",
+                    "(генерировать|generate).*?миграцию",
+                    "(данные|data).*?(migration|миграция)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/alembic/versions/**/*.py",
+                    "back/alembic.ini",
+                    "back/alembic/env.py"
+                ],
+                "contentPatterns": [
+                    "op\\.add_column",
+                    "op\\.drop_column",
+                    "op\\.create_table",
+                    "op\\.execute",
+                    "def upgrade"
+                ]
+            }
+        },
+        "api-client-generation": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Orval API client generation from OpenAPI",
+            "promptTriggers": {
+                "keywords": [
+                    "API client",
+                    "orval",
+                    "OpenAPI",
+                    "react-query",
+                    "React Query",
+                    "generated",
+                    "генерация",
+                    "API hooks",
+                    "типы",
+                    "types",
+                    "TypeScript"
+                ],
+                "intentPatterns": [
+                    "(генерировать|generate).*?API.*?(client|клиент)",
+                    "orval",
+                    "api:generate",
+                    "(использовать|use).*?generated.*?(hook|query|mutation)",
+                    "openapi.*?(schema|spec)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/orval.config.ts",
+                    "front/src/shared/api/generated/**/*",
+                    "back/openapi.json"
+                ],
+                "contentPatterns": [
+                    "useGet",
+                    "usePost",
+                    "useMutation",
+                    "useQuery",
+                    "orval"
+                ]
+            }
+        },
+        "mindmap-reactflow": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "React Flow / XY Flow patterns for mindmap and visualization",
+            "promptTriggers": {
+                "keywords": [
+                    "mindmap",
+                    "ментальная карта",
+                    "React Flow",
+                    "XYFlow",
+                    "node",
+                    "edge",
+                    "граф",
+                    "graph",
+                    "диаграмма",
+                    "diagram",
+                    "визуализация",
+                    "visualization",
+                    "связи",
+                    "connections"
+                ],
+                "intentPatterns": [
+                    "(создать|добавить|построить).*?(mindmap|граф|диаграмм|visualization)",
+                    "(node|edge|узел|связь).*?(React Flow|XYFlow)",
+                    "(drag|drop|перетаскивание).*?(node|узел)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/src/features/MindMap/**/*.tsx",
+                    "front/src/widgets/MindMapWidget/**/*.tsx",
+                    "front/src/pages/MindMap/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "ReactFlow",
+                    "@xyflow/react",
+                    "useNodesState",
+                    "useEdgesState",
+                    "addEdge",
+                    "Handle"
+                ]
+            }
+        },
+        "monaco-editor-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "Monaco Editor integration patterns for code editing",
+            "promptTriggers": {
+                "keywords": [
+                    "Monaco",
+                    "code editor",
+                    "редактор кода",
+                    "syntax highlighting",
+                    "подсветка синтаксиса",
+                    "autocomplete",
+                    "автодополнение",
+                    "intellisense"
+                ],
+                "intentPatterns": [
+                    "(Monaco|редактор).*?(настроить|configure|customize)",
+                    "(добавить|add).*?(language|язык|syntax)",
+                    "(theme|тема).*?(editor|редактор)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/src/widgets/CodeEditor/**/*.tsx",
+                    "front/src/features/CodeEditor/**/*.tsx",
+                    "front/src/pages/CodeEditor/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "@monaco-editor/react",
+                    "monaco.editor",
+                    "useMonaco",
+                    "Editor.*language"
+                ]
+            }
+        },
+        "testing-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "Testing patterns - pytest, vitest, React Testing Library",
+            "promptTriggers": {
+                "keywords": [
+                    "test",
+                    "тест",
+                    "тестирование",
+                    "testing",
+                    "pytest",
+                    "vitest",
+                    "jest",
+                    "mock",
+                    "мок",
+                    "fixture",
+                    "фикстура",
+                    "coverage",
+                    "покрытие",
+                    "unit test",
+                    "integration test"
+                ],
+                "intentPatterns": [
+                    "(написать|write|add|добавить).*?(test|тест)",
+                    "(тестировать|test).*?(компонент|service|endpoint|API)",
+                    "(mock|мок).*?(service|repository|API)",
+                    "(coverage|покрытие).*?(increase|увеличить)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/*.test.ts",
+                    "**/*.test.tsx",
+                    "**/*.spec.ts",
+                    "**/*.spec.tsx",
+                    "**/test_*.py",
+                    "**/*_test.py",
+                    "**/tests/**/*.py"
+                ],
+                "contentPatterns": [
+                    "describe\\(",
+                    "it\\(",
+                    "test\\(",
+                    "expect\\(",
+                    "pytest",
+                    "AsyncMock",
+                    "@pytest.fixture"
+                ]
+            }
+        },
+        "performance-optimization": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "Performance optimization patterns - React memo, useMemo, lazy loading",
+            "promptTriggers": {
+                "keywords": [
+                    "performance",
+                    "производительность",
+                    "оптимизация",
+                    "optimization",
+                    "memo",
+                    "useMemo",
+                    "useCallback",
+                    "lazy",
+                    "ленивая загрузка",
+                    "profiler",
+                    "render",
+                    "перерендер",
+                    "re-render"
+                ],
+                "intentPatterns": [
+                    "(оптимизировать|optimize|improve).*?(performance|производительность|render)",
+                    "(reduce|уменьшить).*?(re-render|перерендер|bundle)",
+                    "(lazy|ленивая).*?(load|загрузка)",
+                    "(memo|мемоизация).*?(component|компонент)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "front/src/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "React\\.memo",
+                    "useMemo\\(",
+                    "useCallback\\(",
+                    "lazy\\(",
+                    "Suspense"
+                ]
+            }
+        },
+        "logging-monitoring": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "medium",
+            "description": "Logging and monitoring patterns - structlog, WebSocket streaming",
+            "promptTriggers": {
+                "keywords": [
+                    "logging",
+                    "логирование",
+                    "лог",
+                    "log",
+                    "structlog",
+                    "monitoring",
+                    "мониторинг",
+                    "WebSocket",
+                    "streaming",
+                    "correlation id",
+                    "трассировка"
+                ],
+                "intentPatterns": [
+                    "(добавить|add).*?(log|лог)",
+                    "(настроить|configure).*?(logging|логирование)",
+                    "(WebSocket|стриминг).*?(log|лог)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "back/app/core/logging.py",
+                    "back/app/features/logs/**/*.py"
+                ],
+                "contentPatterns": [
+                    "structlog",
+                    "get_logger",
+                    "correlation_id",
+                    "WebSocketEndpoint"
+                ]
+            }
+        }
+    },
+    "notes": {
+        "enforcement_types": {
+            "suggest": "Skill suggestion appears but doesn't block execution",
+            "block": "Requires skill to be used before proceeding (guardrail)",
+            "warn": "Shows warning but allows proceeding"
+        },
+        "priority_levels": {
+            "critical": "Highest - Always trigger when matched",
+            "high": "Important - Trigger for most matches",
+            "medium": "Moderate - Trigger for clear matches",
+            "low": "Optional - Trigger only for explicit matches"
+        },
+        "customization": {
+            "note": "Triggers include both Russian and English keywords for better UX with Russian-speaking developer",
+            "pathPatterns": "Adjusted for nareshka-mono structure: back/app/features/, front/src/",
+            "intentPatterns": "Support both Russian and English prompts"
+        }
+    }
+}
