@@ -20,10 +20,6 @@ export const BudgetCalculator: FC = () => {
   const monthlyData = getMonthlyData()
   const currentMonthData = monthlyData.find(m => m.month === stats.currentMonth)
   const realIncome = currentMonthData?.totalIncome || 0
-  const totalExpenses = currentMonthData?.totalExpenses || 0
-
-  // What's left from income
-  const moneyRemaining = realIncome - totalExpenses
 
   // Total planned budget from pools
   const totalPlannedBudget = foodPoolBudget + monthlyPoolBudget
