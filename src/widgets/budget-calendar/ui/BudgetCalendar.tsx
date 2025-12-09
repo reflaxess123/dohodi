@@ -357,9 +357,17 @@ export const BudgetCalendar: FC<BudgetCalendarProps> = ({ month }) => {
           const cardRect = cardRef.current?.getBoundingClientRect()
           if (!cardRect) return null
 
+          const popupWidth = 256 // w-64 = 16rem = 256px
+          const padding = 8 // minimum padding from edges
+
           // Position relative to card
-          const left = buttonRect.left - cardRect.left + buttonRect.width / 2
+          let left = buttonRect.left - cardRect.left + buttonRect.width / 2
           const top = buttonRect.top - cardRect.top
+
+          // Clamp left position so popup stays within card bounds
+          const minLeft = popupWidth / 2 + padding
+          const maxLeft = cardRect.width - popupWidth / 2 - padding
+          left = Math.max(minLeft, Math.min(maxLeft, left))
 
           return (
             <div
@@ -452,11 +460,6 @@ export const BudgetCalendar: FC<BudgetCalendarProps> = ({ month }) => {
                   </>
                 )}
               </div>
-
-              {/* Triangle pointer at bottom */}
-              <div
-                className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white dark:border-t-zinc-900"
-              />
             </div>
           )
         })()}
